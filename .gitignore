@@ -42,3 +42,8 @@ Thumbs.db
 # pytest
 .pytest_cache/
 .cache
+
+# Generated files
+performance_results.csv
+performance_*.png
+quick_demo.py
