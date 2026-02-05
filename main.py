@@ -12,6 +12,8 @@ from kdtree import KDTree
 from quadtree import Quadtree
 from range_tree import SimpleRangeTree
 from rtree import SimpleRTree
+from project_query import run_project_query
+from performance_comparison import run_performance_comparison
 
 
 def print_section(title: str):
@@ -83,171 +85,49 @@ def build_trees(data: np.ndarray, df: pd.DataFrame, dimensions: List[str]):
     return trees, build_times
 
 
-def demonstrate_kdtree_queries(kdtree: KDTree, data: np.ndarray, 
-                               df: pd.DataFrame, dimensions: List[str]):
-    """Demonstrate K-D Tree queries."""
-    print_section("K-D Tree Queries")
+def demonstrate_basic_queries(trees: Dict, data: np.ndarray, 
+                             df: pd.DataFrame, dimensions: List[str]):
+    """Demonstrate basic tree queries (simplified version)."""
+    print_section("Quick Tree Functionality Check")
     
-    # Range query
-    print("Query 1: Range Query")
-    print("  Find movies with budget $5M-$20M and rating 7-9")
-    
-    # Create range based on dimension indices
+    # K-D Tree: Range query
+    print("K-D Tree: Range Query (Budget $5M-$20M, Rating 7-9)")
     ranges = [
-        (5_000_000, 20_000_000),     # budget
-        (0, np.inf),                  # revenue (any)
-        (0, np.inf),                  # runtime (any)
-        (0, np.inf),                  # popularity (any)
-        (7.0, 9.0),                   # vote_average
-        (0, np.inf)                   # vote_count (any)
+        (5_000_000, 20_000_000), (0, np.inf), (0, np.inf),
+        (0, np.inf), (7.0, 9.0), (0, np.inf)
     ]
-    
     start = time.time()
-    results = kdtree.range_query(ranges)
-    query_time = time.time() - start
+    results = trees['kdtree'].range_query(ranges)
+    print(f"  ✓ Found {len(results)} movies in {time.time() - start:.4f}s")
     
-    print(f"  Found {len(results)} movies in {query_time:.4f}s")
-    
-    # Show sample results
-    if results:
-        sample_indices = results[:5]
-        print("\n  Sample results:")
-        for idx in sample_indices:
-            movie = df.iloc[idx]
-            print(f"    - {movie['title']}: "
-                  f"Budget=${movie['budget']:,.0f}, "
-                  f"Rating={movie['vote_average']:.1f}")
-    
-    # Nearest neighbor query
-    print("\n\nQuery 2: Nearest Neighbor Search")
-    print("  Find 5 movies similar to a random movie")
-    
-    random_idx = np.random.randint(0, len(data))
-    target_movie = df.iloc[random_idx]
-    target_point = data[random_idx]
-    
-    print(f"  Target: {target_movie['title']}")
-    print(f"    Budget=${target_movie['budget']:,.0f}, "
-          f"Revenue=${target_movie['revenue']:,.0f}, "
-          f"Rating={target_movie['vote_average']:.1f}")
-    
+    # Quadtree: 2D query
+    print("\nQuadtree: 2D Spatial Query (Budget $1M-$10M, Revenue $5M-$50M)")
     start = time.time()
-    neighbors = kdtree.nearest_neighbors(target_point, k=6)  # +1 to exclude target itself
-    query_time = time.time() - start
+    results = trees['quadtree'].query_range((1_000_000, 10_000_000), (5_000_000, 50_000_000))
+    print(f"  ✓ Found {len(results)} movies in {time.time() - start:.4f}s")
     
-    print(f"\n  Found {len(neighbors)} neighbors in {query_time:.4f}s")
-    print("  Similar movies:")
-    
-    for i, (idx, dist) in enumerate(neighbors[1:6]):  # Skip first (target itself)
-        movie = df.iloc[idx]
-        print(f"    {i+1}. {movie['title']} (distance: {dist:.2f})")
-        print(f"       Budget=${movie['budget']:,.0f}, "
-              f"Revenue=${movie['revenue']:,.0f}, "
-              f"Rating={movie['vote_average']:.1f}")
-
-
-def demonstrate_quadtree_queries(quadtree: Quadtree, data: np.ndarray, 
-                                 df: pd.DataFrame, dimensions: List[str]):
-    """Demonstrate Quadtree queries."""
-    print_section("Quadtree Queries (Budget vs Revenue)")
-    
-    print("Query: Spatial Range Query")
-    print("  Find movies with budget $1M-$10M and revenue $5M-$50M")
-    
-    start = time.time()
-    results = quadtree.query_range(
-        x_range=(1_000_000, 10_000_000),      # budget
-        y_range=(5_000_000, 50_000_000)       # revenue
-    )
-    query_time = time.time() - start
-    
-    print(f"  Found {len(results)} movies in {query_time:.4f}s")
-    
-    # Show sample results
-    if results:
-        sample_indices = results[:5]
-        print("\n  Sample results:")
-        for idx in sample_indices:
-            movie = df.iloc[idx]
-            print(f"    - {movie['title']}: "
-                  f"Budget=${movie['budget']:,.0f}, "
-                  f"Revenue=${movie['revenue']:,.0f}")
-
-
-def demonstrate_rangetree_queries(range_tree: SimpleRangeTree, data: np.ndarray,
-                                   df: pd.DataFrame, dimensions: List[str]):
-    """Demonstrate Range Tree queries."""
-    print_section("Range Tree Queries")
-    
-    print("Query: Multidimensional Range Query")
-    print("  Find movies with:")
-    print("    - Budget: $5M-$50M")
-    print("    - Runtime: 90-120 minutes")
-    print("    - Rating: 7-10")
-    
+    # Range Tree: Multi-dimensional query
+    print("\nRange Tree: Multi-dimensional Query")
     ranges = [
-        (5_000_000, 50_000_000),     # budget
-        (0, np.inf),                  # revenue (any)
-        (90, 120),                    # runtime
-        (0, np.inf),                  # popularity (any)
-        (7.0, 10.0),                  # vote_average
-        (0, np.inf)                   # vote_count (any)
+        (5_000_000, 50_000_000), (0, np.inf), (90, 120),
+        (0, np.inf), (7.0, 10.0), (0, np.inf)
     ]
-    
     start = time.time()
-    results = range_tree.range_query(ranges)
-    query_time = time.time() - start
+    results = trees['range_tree'].range_query(ranges)
+    print(f"  ✓ Found {len(results)} movies in {time.time() - start:.4f}s")
     
-    print(f"  Found {len(results)} movies in {query_time:.4f}s")
-    
-    # Show sample results
-    if results:
-        sample_indices = results[:5]
-        print("\n  Sample results:")
-        for idx in sample_indices:
-            movie = df.iloc[idx]
-            print(f"    - {movie['title']}: "
-                  f"Budget=${movie['budget']:,.0f}, "
-                  f"Runtime={movie['runtime']:.0f}min, "
-                  f"Rating={movie['vote_average']:.1f}")
-
-
-def demonstrate_rtree_queries(rtree: SimpleRTree, data: np.ndarray,
-                              df: pd.DataFrame, dimensions: List[str]):
-    """Demonstrate R-Tree queries."""
-    print_section("R-Tree Queries")
-    
-    print("Query: Bounding Box Range Query")
-    print("  Find movies with:")
-    print("    - Budget: $10M-$100M")
-    print("    - Revenue: $20M-$500M")
-    print("    - Rating: 6-9")
-    
+    # R-Tree: Bounding box query
+    print("\nR-Tree: Bounding Box Query")
     ranges = [
-        (10_000_000, 100_000_000),   # budget
-        (20_000_000, 500_000_000),   # revenue
-        (0, np.inf),                  # runtime (any)
-        (0, np.inf),                  # popularity (any)
-        (6.0, 9.0),                   # vote_average
-        (0, np.inf)                   # vote_count (any)
+        (10_000_000, 100_000_000), (20_000_000, 500_000_000), (0, np.inf),
+        (0, np.inf), (6.0, 9.0), (0, np.inf)
     ]
-    
     start = time.time()
-    results = rtree.range_query(ranges)
-    query_time = time.time() - start
-    
-    print(f"  Found {len(results)} movies in {query_time:.4f}s")
-    
-    # Show sample results
-    if results:
-        sample_indices = results[:5]
-        print("\n  Sample results:")
-        for idx in sample_indices:
-            movie = df.iloc[idx]
-            print(f"    - {movie['title']}: "
-                  f"Budget=${movie['budget']:,.0f}, "
-                  f"Revenue=${movie['revenue']:,.0f}, "
-                  f"Rating={movie['vote_average']:.1f}")
+    results = trees['rtree'].range_query(ranges)
+    print(f"  ✓ Found {len(results)} movies in {time.time() - start:.4f}s")
+
+
+
 
 
 def compare_performance(trees: Dict, build_times: Dict):
@@ -316,21 +196,30 @@ def main():
     # Build trees
     trees, build_times = build_trees(data, df_clean, dimensions)
     
-    # Demonstrate queries
-    demonstrate_kdtree_queries(trees['kdtree'], data, df_clean, dimensions)
-    demonstrate_quadtree_queries(trees['quadtree'], data, df_clean, dimensions)
-    demonstrate_rangetree_queries(trees['range_tree'], data, df_clean, dimensions)
-    demonstrate_rtree_queries(trees['rtree'], data, df_clean, dimensions)
+    # Quick functionality check
+    demonstrate_basic_queries(trees, data, df_clean, dimensions)
     
-    # Performance comparison
-    compare_performance(trees, build_times)
+    # Run project-specific query (main focus)
+    project_results = run_project_query(
+        trees, data, df_clean,
+        query_text="Warner Bros",
+        text_attribute="production_company_names",
+        n_top=3
+    )
+    
+    # Run comprehensive performance comparison
+    print()  # Add spacing
+    comparison_df = run_performance_comparison(trees, build_times, data, df_clean)
     
     print_section("Summary")
-    print("Successfully demonstrated all four data structures:")
-    print("  ✓ K-D Tree - Efficient nearest neighbor and range queries")
-    print("  ✓ Quadtree - 2D spatial indexing")
-    print("  ✓ Range Tree - Multidimensional range queries")
-    print("  ✓ R-Tree - Bounding box queries")
+    print("✓ Successfully completed all project requirements:")
+    print("  • K-D Tree + LSH - Efficient spatial + similarity queries")
+    print("  • Quadtree + LSH - 2D spatial + similarity queries")
+    print("  • Range Tree + LSH - Multidimensional range + similarity queries")
+    print("  • R-Tree + LSH - Bounding box + similarity queries")
+    print("\n✓ Two-phase querying system: Tree filtering → LSH similarity")
+    print("✓ Performance comparison completed with visualizations")
+    print("✓ Project-specific query executed on all 4 methods")
     print("\nAll structures built and tested successfully!")
     print("=" * 80)
 
