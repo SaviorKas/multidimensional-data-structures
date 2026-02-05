@@ -49,9 +49,14 @@ This will:
 
 ### Running Tests
 
-Run the test suite with a smaller dataset sample:
+Run the comprehensive test suite with a dataset sample:
 ```bash
 python test_structures.py
+```
+
+Run unit tests (fast, no dataset required):
+```bash
+python test_unit.py
 ```
 
 ## 📁 Project Structure
@@ -63,7 +68,9 @@ python test_structures.py
 ├── range_tree.py       # Range Tree implementation
 ├── rtree.py            # R-Tree implementation
 ├── main.py             # Main demonstration program
-├── test_structures.py  # Test suite
+├── test_structures.py  # Integration test suite
+├── test_unit.py        # Unit test suite
+├── examples.py         # Practical usage examples
 ├── utils.py            # Helper functions (data loading, preprocessing)
 ├── requirements.txt    # Python dependencies
 ├── README.md           # This file
@@ -215,12 +222,29 @@ The implementation demonstrates several real-world query scenarios:
 
 ## 🧪 Testing
 
-The test suite (`test_structures.py`) validates:
-- Tree construction and size
-- Range query correctness
-- Nearest neighbor search accuracy
-- Performance benchmarks
-- Edge cases and error handling
+The project includes comprehensive test coverage:
+
+**Integration Tests** (`test_structures.py`):
+- Tests all structures with real dataset samples (10,000 movies)
+- Validates tree construction and size
+- Tests all query types
+- Measures performance
+
+**Unit Tests** (`test_unit.py`):
+- Fast tests with synthetic data
+- Tests core functionality without dataset
+- Validates edge cases
+- Tests utility functions
+
+**Examples** (`examples.py`):
+- Practical usage demonstrations
+- Real-world query scenarios
+- Shows best practices
+
+Run all tests:
+```bash
+python test_unit.py && python test_structures.py
+```
 
 ## 📚 References
 
