@@ -65,7 +65,7 @@ def query_kdtree_lsh(kdtree, data: np.ndarray, df: pd.DataFrame,
         return [], df_filtered, time.time() - start_time
     
     # Phase 2: LSH similarity on filtered results
-    lsh_index, minhash_dict, df_valid = create_lsh_index(df_filtered, text_attribute, num_perm)
+    lsh_index, minhash_dict, df_valid = create_lsh_index(df_filtered, text_attribute, num_perm, verbose=False)
     
     if len(df_valid) == 0:
         return [], df_valid, time.time() - start_time
@@ -137,7 +137,7 @@ def query_quadtree_lsh(quadtree, data: np.ndarray, df: pd.DataFrame,
         return [], df_filtered, time.time() - start_time
     
     # Phase 2: LSH similarity on filtered results
-    lsh_index, minhash_dict, df_valid = create_lsh_index(df_filtered, text_attribute, num_perm)
+    lsh_index, minhash_dict, df_valid = create_lsh_index(df_filtered, text_attribute, num_perm, verbose=False)
     
     if len(df_valid) == 0:
         return [], df_valid, time.time() - start_time
@@ -204,7 +204,7 @@ def query_rangetree_lsh(range_tree, data: np.ndarray, df: pd.DataFrame,
         return [], df_filtered, time.time() - start_time
     
     # Phase 2: LSH similarity on filtered results
-    lsh_index, minhash_dict, df_valid = create_lsh_index(df_filtered, text_attribute, num_perm)
+    lsh_index, minhash_dict, df_valid = create_lsh_index(df_filtered, text_attribute, num_perm, verbose=False)
     
     if len(df_valid) == 0:
         return [], df_valid, time.time() - start_time
@@ -271,7 +271,7 @@ def query_rtree_lsh(rtree, data: np.ndarray, df: pd.DataFrame,
         return [], df_filtered, time.time() - start_time
     
     # Phase 2: LSH similarity on filtered results
-    lsh_index, minhash_dict, df_valid = create_lsh_index(df_filtered, text_attribute, num_perm)
+    lsh_index, minhash_dict, df_valid = create_lsh_index(df_filtered, text_attribute, num_perm, verbose=False)
     
     if len(df_valid) == 0:
         return [], df_valid, time.time() - start_time

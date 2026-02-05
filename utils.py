@@ -228,7 +228,7 @@ def prepare_text_for_lsh(text: str) -> str:
     Returns:
         Cleaned text string
     """
-    if pd.isna(text) or not text:
+    if pd.isna(text) or text == '':
         return ""
     
     # Convert to lowercase, remove special characters

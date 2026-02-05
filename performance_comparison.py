@@ -150,8 +150,12 @@ def calculate_memory_estimates(trees: Dict, df: pd.DataFrame) -> Dict[str, int]:
     memory_estimates = {}
     
     for tree_name, tree_obj in trees.items():
-        # Rough memory estimates based on tree size
-        tree_size = tree_obj.size if hasattr(tree_obj, 'size') else len(df)
+        # Use tree size attribute if available, otherwise estimate based on data
+        if hasattr(tree_obj, 'size'):
+            tree_size = tree_obj.size
+        else:
+            # Conservative estimate: assume at least 1 node per data point
+            tree_size = len(df)
         
         # Different memory multipliers for different structures
         if tree_name == 'kdtree':
@@ -329,6 +333,11 @@ def run_performance_comparison(trees: Dict, build_times: Dict, data: np.ndarray,
     print("\n" + "=" * 80)
     print("  KEY INSIGHTS")
     print("=" * 80)
+    
+    # Check if we have valid data
+    if len(comparison_df) == 0 or comparison_df['Total Build (s)'].isna().all():
+        print("\nInsufficient data for insights")
+        return comparison_df
     
     fastest_build = comparison_df.loc[comparison_df['Total Build (s)'].idxmin(), 'Method']
     fastest_query = comparison_df.loc[comparison_df['Avg Query (s)'].idxmin(), 'Method']

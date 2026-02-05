@@ -76,7 +76,7 @@ def create_minhash(tokens: set, num_perm: int = 128) -> MinHash:
 
 
 def create_lsh_index(df: pd.DataFrame, text_column: str, num_perm: int = 128,
-                     threshold: float = 0.5) -> Tuple[MinHashLSH, Dict[int, MinHash], pd.DataFrame]:
+                     threshold: float = 0.5, verbose: bool = True) -> Tuple[MinHashLSH, Dict[int, MinHash], pd.DataFrame]:
     """
     Build an LSH index for textual similarity on a DataFrame column.
     
@@ -85,6 +85,7 @@ def create_lsh_index(df: pd.DataFrame, text_column: str, num_perm: int = 128,
         text_column: Name of the column containing text to index
         num_perm: Number of permutations for MinHash (default: 128)
         threshold: Jaccard similarity threshold for LSH (default: 0.5)
+        verbose: Whether to print progress messages (default: True)
         
     Returns:
         Tuple of (lsh_index, minhash_dict, filtered_df)
@@ -115,7 +116,8 @@ def create_lsh_index(df: pd.DataFrame, text_column: str, num_perm: int = 128,
     # Create filtered DataFrame with valid indices
     df_filtered = df.loc[valid_indices].copy()
     
-    print(f"Created LSH index for '{text_column}' with {len(minhash_dict)} items")
+    if verbose:
+        print(f"Created LSH index for '{text_column}' with {len(minhash_dict)} items")
     
     return lsh, minhash_dict, df_filtered
 
